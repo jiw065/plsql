@@ -74,11 +74,11 @@ SELECT E.EMPLOYEE_ID,E.DEPARTMENT_ID,D.DEPARTMENT_NAME FROM EMPLOYEES E
                                                        
 /
 
--- INNER JOIN (�Ա���ѯ)
+-- INNER JOIN (自表查询)
 SELECT EMP.LAST_NAME,MAG.LAST_NAME,MAG.EMAIL FROM EMPLOYEES EMP, EMPLOYEES MAG WHERE EMP.MANAGER_ID = MAG.EMPLOYEE_ID AND UPPER(EMP.LAST_NAME) = 'CHEN';
 /
 
---1.	��ʾ����Ա�������������źźͲ������ơ�
+--1.	显示所有员工的姓名，部门号和部门名称。
 
 SELECT E.First_Name,D.DEPARTMENT_ID,D.DEPARTMENT_NAME FROM EMPLOYEES E, DEPARTMENTS D WHERE D.DEPARTMENT_ID(+) = E.DEPARTMENT_ID;
 /
@@ -87,27 +87,27 @@ SELECT E.FIRST_NAME,D.DEPARTMENT_ID,D.DEPARTMENT_NAME FROM EMPLOYEES E
               ON E.DEPARTMENT_ID = D.DEPARTMENT_ID;
 /              
 
---2.	��ѯ90�Ų���Ա����job_id��90�Ų��ŵ�location_id
+--2.	查询90号部门员工的job_id和90号部门的location_id
 SELECT E.FIRST_NAME,E.DEPARTMENT_ID,J.JOB_ID,J.JOB_TITLE,D.LOCATION_ID FROM EMPLOYEES E, DEPARTMENTS D, JOBS J 
                                                  WHERE D.DEPARTMENT_ID = E.DEPARTMENT_ID 
                                                  AND D.DEPARTMENT_ID = 90
                                                  AND j.job_id = E.JOB_ID 
                                                  
---3.	ѡ�������н����Ա���� last_name , department_name , location_id , city
+--3.	选择所有有奖金的员工的 last_name , department_name , location_id , city
 SELECT E.LAST_NAME,D.DEPARTMENT_NAME,L.LOCATION_ID,L.CITY FROM EMPLOYEES E, DEPARTMENTS D, LOCATIONS L
          WHERE E.DEPARTMENT_ID = D.DEPARTMENT_ID
          AND D.LOCATION_ID = L.LOCATION_ID
          AND E.COMMISSION_PCT IS NOT NULL                                                 
 /
 
---4.	ѡ��city��Toronto������Ա���� last_name , job_id , department_id , department_name 
+--4.	选择city在Toronto工作的员工的 last_name , job_id , department_id , department_name 
 SELECT E.LAST_NAME, E.JOB_ID,D.DEPARTMENT_ID,D.DEPARTMENT_NAME 
                            FROM EMPLOYEES E, LOCATIONS L, DEPARTMENTS D
                            WHERE E.DEPARTMENT_ID = D.DEPARTMENT_ID
                            AND D.LOCATION_ID = L.LOCATION_ID
                            AND UPPER(L.CITY) = 'TORONTO'; 
                            
---5.	ѡ��ָ��Ա����������Ա���ţ��Լ����Ĺ����ߵ�������Ա���ţ��������������ĸ�ʽ 
+--5.	选择指定员工的姓名，员工号，以及他的管理者的姓名和员工号，结果类似于下面的格式 
 SELECT E.FIRST_NAME E_NAME, E.EMPLOYEE_ID E_ID, M.FIRST_NAME M_NAME, M.EMPLOYEE_ID M_ID
                                                  FROM EMPLOYEES E, EMPLOYEES M 
                                                  WHERE  E.MANAGER_ID = M.EMPLOYEE_ID(+);
@@ -145,24 +145,24 @@ HAVING AVG(E.SALARY) > 6000
 GROUP BY J.JOB_TITLE;
 /   
 
--- 4.	��ѯ��˾Ա�����ʵ����ֵ����Сֵ��ƽ��ֵ���ܺ�
+-- 4.	查询公司员工工资的最大值，最小值，平均值，总和
 SELECT MAX(E.SALARY),MIN(E.SALARY),AVG(E.SALARY),SUM(E.SALARY) FROM EMPLOYEES E ;
---5.	��ѯ��job_id��Ա�����ʵ����ֵ����Сֵ��ƽ��ֵ���ܺ�
+--5.	查询各job_id的员工工资的最大值，最小值，平均值，总和
 SELECT E.JOB_ID, MAX(E.SALARY),MIN(E.SALARY),AVG(E.SALARY),SUM(E.SALARY) FROM EMPLOYEES E GROUP BY E.JOB_ID; 
---6.	ѡ����и���job_id��Ա������
+--6.	选择具有各个job_id的员工人数
 SELECT E.JOB_ID, COUNT(E.EMPLOYEE_ID) FROM EMPLOYEES E GROUP BY E.JOB_ID;
 
---7.	��ѯԱ����߹��ʺ���͹��ʵĲ�ࣨDIFFERENCE��
+--7.	查询员工最高工资和最低工资的差距（DIFFERENCE）
 SELECT MAX(E.SALARY) - MIN(E.SALARY) FROM EMPLOYEES E; 
 
 
---8.	��ѯ��������������Ա������͹��ʣ�������͹��ʲ��ܵ���6000��û�й����ߵ�Ա������������ 
+--8.	查询各个管理者手下员工的最低工资，其中最低工资不能低于6000，没有管理者的员工不计算在内 
 SELECT E.MANAGER_ID,MIN(E.SALARY) FROM EMPLOYEES E
 WHERE E.MANAGER_ID IS NOT NULL 
 HAVING MIN(E.SALARY) >= 6000
 GROUP BY E.MANAGER_ID;
                   
---9.	��ѯ���в��ŵ����֣�location_id��Ա�������͹���ƽ��ֵ
+--9.	查询所有部门的名字，location_id，员工数量和工资平均值
 
 SELECT D.DEPARTMENT_NAME,D.LOCATION_ID,COUNT(E.EMPLOYEE_ID),AVG(E.SALARY) 
 FROM EMPLOYEES E, DEPARTMENTS D
@@ -171,7 +171,7 @@ GROUP BY D.DEPARTMENT_NAME,D.LOCATION_ID;
 /
 
 
---10.	��ѯ��˾��1995-1998��֮�䣬ÿ����õ������������������ĸ�ʽ
+--10.	查询公司在1995-1998年之间，每年雇用的人数，结果类似下面的格式
 SELECT 'TOTAL',SUM(YC.EMP_COUNT) FROM 
 (SELECT TO_CHAR(E.HIRE_DATE,'YYYY') HIRE_YEAR,COUNT(E.EMPLOYEE_ID) EMP_COUNT 
 FROM EMPLOYEES E 
@@ -210,13 +210,13 @@ SELECT * FROM EMPLOYEES M WHERE M.EMPLOYEE_ID = (SELECT E.MANAGER_ID FROM EMPLOY
 select * from employees e 
 where e.job_id = (select job_id from employees where employee_id = 141);
 /
--- ��50 department ��͹��ʵ͵�����department �� ��͹���
+-- 比50 department 最低工资低的所有department 的 最低工资
 select E.DEPARTMENT_ID,D.DEPARTMENT_NAME,MIN(E.SALARY) from departments d, EMPLOYEES E 
 WHERE E.DEPARTMENT_ID = D.DEPARTMENT_ID(+)
 GROUP BY E.DEPARTMENT_ID,D.DEPARTMENT_NAME
 HAVING MIN(E.SALARY) >(SELECT MIN(SALARY) FROM EMPLOYEES WHERE DEPARTMENT_ID = 50)
 
---���������б�job_id = it_prod������һ���ʵ͵�Ա����Ϣ
+--其他部门中比job_id = it_prod部门任一工资低的员工信息
 
 SELECT E.JOB_ID,E.EMPLOYEE_ID,E.LAST_NAME,E.SALARY FROM EMPLOYEES E WHERE E.JOB_ID <> 'IT_PROG'
 AND E.SALARY < ANY(SELECT SALARY FROM EMPLOYEES WHERE JOB_ID = 'IT_PROG');
@@ -229,7 +229,7 @@ AND E.SALARY > ALL(SELECT SALARY FROM EMPLOYEES WHERE JOB_ID = 'IT_PROG');
 
 -- THE EMPLOYEE HAS LOWEST SALARY LAST NAME SALARY
 SELECT E.LAST_NAME,E.SALARY FROM EMPLOYEES E WHERE E.SALARY = (SELECT MIN(SALARY) FROM EMPLOYEES);
--- AVG������Ͳ�����Ϣ
+-- AVG工资最低部门信息
 SELECT D.DEPARTMENT_ID,D.DEPARTMENT_NAME,D.MANAGER_ID,D.LOCATION_ID FROM DEPARTMENTS D,EMPLOYEES E WHERE E.DEPARTMENT_ID = D.DEPARTMENT_ID
 GROUP BY D.DEPARTMENT_ID,D.DEPARTMENT_NAME,D.MANAGER_ID,D.LOCATION_ID 
 HAVING AVG(E.SALARY) =  (SELECT MIN(AVG(SALARY)) FROM EMPLOYEES GROUP BY DEPARTMENT_ID);
@@ -242,7 +242,7 @@ SELECT E.DEPARTMENT_ID FROM EMPLOYEES E
 GROUP BY E.DEPARTMENT_ID
 HAVING AVG(E.SALARY) = (SELECT MIN(AVG(SALARY)) FROM EMPLOYEES GROUP BY DEPARTMENT_ID)
 )
---��ѯƽ��������͵Ĳ�����Ϣ�͸ò��ŵ�ƽ������
+--查询平均工资最低的部门信息和该部门的平均工资
 SELECT D.DEPARTMENT_ID,D.DEPARTMENT_NAME,AVG(E.SALARY) 
 FROM DEPARTMENTS D ,EMPLOYEES E WHERE E.DEPARTMENT_ID = D.DEPARTMENT_ID
 GROUP BY D.DEPARTMENT_ID,D.DEPARTMENT_NAME
@@ -259,7 +259,7 @@ HAVING AVG(E.SALARY) = (SELECT MIN(AVG(SALARY)) FROM EMPLOYEES GROUP BY DEPARTME
 );
 /
 
---��ѯƽ��������ߵ�job��Ϣ
+--查询平均工资最高的job信息
 SELECT E.JOB_ID,J.JOB_TITLE,J.MIN_SALARY,J.MAX_SALARY ,AVG(E.SALARY)
 FROM JOBS J, EMPLOYEES E WHERE E.JOB_ID = J.JOB_ID
 GROUP BY E.JOB_ID,J.JOB_TITLE,J.MIN_SALARY,J.MAX_SALARY
@@ -273,7 +273,7 @@ HAVING AVG(E.SALARY) = (SELECT MAX(AVG(SALARY)) FROM EMPLOYEES GROUP BY JOB_ID)
 )
 
 
--- ��ѯƽ�����ʸ��ڹ�˾ƽ�����ʵĲ�������Щ
+-- 查询平均工资高于公司平均工资的部门有哪些
 SELECT D.DEPARTMENT_NAME,D.DEPARTMENT_ID,AVG(E.SALARY) FROM DEPARTMENTS D, EMPLOYEES E 
 WHERE E.DEPARTMENT_ID = D.DEPARTMENT_ID
 GROUP BY D.DEPARTMENT_ID,D.DEPARTMENT_NAME
@@ -292,7 +292,7 @@ SELECT * FROM EMPLOYEES E WHERE E.EMPLOYEE_ID IN(
        SELECT DISTINCT MANAGER_ID FROM EMPLOYEES
 );
 /
---RETURN������ ��߹��������'S���ŵ���͹����Ƕ���
+--RETURN部门中 最高工资中最低'S部门的最低工资是多少
 SELECT D.DEPARTMENT_ID,MIN(E.SALARY) FROM DEPARTMENTS D, EMPLOYEES E 
 WHERE D.DEPARTMENT_ID = E.DEPARTMENT_ID
 GROUP BY D.DEPARTMENT_ID
@@ -313,41 +313,41 @@ AND E.HIRE_DATE > TO_DATE('2004','YYYY');
 /
 
 
---1.	��ѯ��Zlotkey��ͬ���ŵ�Ա�������͹�������
+--1.	查询和Zlotkey相同部门的员工姓名和雇用日期
 SELECT E.LAST_NAME,E.HIRE_DATE FROM EMPLOYEES E 
                                WHERE E.DEPARTMENT_ID= 
                                (SELECT DEPARTMENT_ID FROM EMPLOYEES WHERE LAST_NAME = 'Zlotkey');
 
---2.	��ѯ���ʱȹ�˾ƽ�����ʸߵ�Ա����Ա���ţ������͹��ʡ�
+--2.	查询工资比公司平均工资高的员工的员工号，姓名和工资。
 
 SELECT E.EMPLOYEE_ID,E.SALARY,E.LAST_NAME FROM EMPLOYEES E WHERE E.SALARY >
                           (SELECT AVG(SALARY) FROM EMPLOYEES);
---3.	��ѯ�������й��ʱȱ�����ƽ�����ʸߵ�Ա����Ա����, �����͹���
+--3.	查询各部门中工资比本部门平均工资高的员工的员工号, 姓名和工资
 SELECT E.EMPLOYEE_ID,E.LAST_NAME,E.SALARY,e.department_id FROM EMPLOYEES E 
                                           WHERE E.SALARY > (SELECT AVG(SALARY) FROM EMPLOYEES 
                                                             WHERE DEPARTMENT_ID = E.DEPARTMENT_ID
                                                            ); 
 
---4.	��ѯ�������а�����ĸu��Ա������ͬ���ŵ�Ա����Ա���ź�����
+--4.	查询和姓名中包含字母u的员工在相同部门的员工的员工号和姓名
 SELECT * FROM EMPLOYEES E WHERE E.DEPARTMENT_ID IN (SELECT DEPARTMENT_ID 
                                                     FROM EMPLOYEES WHERE UPPER(LAST_NAME) LIKE '%U%');
 
---5. ��ѯ�ڲ��ŵ�location_idΪ1700�Ĳ��Ź�����Ա����Ա����
+--5. 查询在部门的location_id为1700的部门工作的员工的员工号
 SELECT E.EMPLOYEE_ID FROM EMPLOYEES E WHERE E.DEPARTMENT_ID IN (SELECT D.DEPARTMENT_ID
                                                     FROM DEPARTMENTS D 
                                                     WHERE D.LOCATION_ID = 1700);
---6.��ѯ��������King��Ա�������͹���
+--6.查询管理者是King的员工姓名和工资
 SELECT E.LAST_NAME,E.SALARY FROM EMPLOYEES E
                             WHERE E.MANAGER_ID in (SELECT EMPLOYEE_ID
                                                   FROM EMPLOYEES WHERE LAST_NAME = 'King'); 
                                                   
---���� 114��Ա���Ĺ����͹���ʹ����205��Ա����ͬ��
+--更新 114号员工的工作和工资使其与205号员工相同。
 UPDATE EMPLOYEES E SET E.SALARY = (SELECT SALARY FROM EMPLOYEES WHERE EMPLOYEE_ID = 205), 
                        E.JOB_ID = (SELECT JOB_ID FROM EMPLOYEES WHERE EMPLOYEE_ID = 205) 
                        WHERE E.EMPLOYEE_ID = 114; 
 SELECT * FROM EMPLOYEES E WHERE E.EMPLOYEE_ID IN (205,114);                                                 
                                                   
---������employee_id Ϊ200��Ա��job_id��ͬ��Ա����department_idΪemployee_idΪ100��Ա����department_id��
+--调整与employee_id 为200的员工job_id相同的员工的department_id为employee_id为100的员工的department_id。
 
 UPDATE EMPLOYEES E SET 
                    E.DEPARTMENT_ID =(SELECT EE.DEPARTMENT_ID 
@@ -358,7 +358,7 @@ UPDATE EMPLOYEES E SET
                    
                    
                               
---55. ���� 108 Ա������Ϣ: ʹ�乤�ʱ�Ϊ���ڲ����е���߹���, job ��Ϊ��˾��ƽ��������͵� job
+--55. 更改 108 员工的信息: 使其工资变为所在部门中的最高工资, job 变为公司中平均工资最低的 job
 SAVEPOINT Q55;
 UPDATE EMPLOYEES E SET E.SALARY = (SELECT MAX(SALARY) FROM EMPLOYEES WHERE DEPARTMENT_ID = E.DEPARTMENT_ID),
                        E.JOB_ID = (SELECT JOB_ID FROM EMPLOYEES HAVING AVG(SALARY) = (SELECT MIN(AVG(SALARY)) FROM EMPLOYEES GROUP BY JOB_ID)
@@ -371,7 +371,7 @@ UPDATE EMPLOYEES E SET E.SALARY = (SELECT MAX(SALARY) FROM EMPLOYEES WHERE DEPAR
 
 SELECT * FROM EMPLOYEES E WHERE E.EMPLOYEE_ID = 113;
 SAVEPOINT Q56;
---56. ɾ�� 108 ��Ա�����ڲ����й�����͵��Ǹ�Ա��.
+--56. 删除 108 号员工所在部门中工资最低的那个员工.
 DELETE FROM EMPLOYEES E WHERE E.SALARY = (SELECT MIN(E2.SALARY) FROM EMPLOYEES E2, EMPLOYEES E8 WHERE E2.DEPARTMENT_ID = E8.DEPARTMENT_ID AND E8.EMPLOYEE_ID = 108);
 
 
@@ -382,35 +382,35 @@ create table emp2 as select employee_id id, last_name name, salary from employee
 
 create table dept2 as select department_id id, department_name dept_name from departments;
 
---1.	���emp2��id��������PRIMARY KEYԼ����my_emp_id_pk��
+--1.	向表emp2的id列中添加PRIMARY KEY约束（my_emp_id_pk）
 ALTER TABLE EMP2
 ADD CONSTRAINT MY_EMP_ID_PK PRIMARY KEY (ID); 
 
 
 
---2.	���dept2��id��������PRIMARY KEYԼ����my_dept_id_pk��
+--2.	向表dept2的id列中添加PRIMARY KEY约束（my_dept_id_pk）
 ALTER TABLE DEPT2
 ADD CONSTRAINT MY_DEPT_ID_PK PRIMARY KEY (ID);
 
---3.	���emp2��������dept_id���������ж���FOREIGN KEYԼ������֮�����������dept2���е�id�С�
+--3.	向表emp2中添加列dept_id，并在其中定义FOREIGN KEY约束，与之相关联的列是dept2表中的id列。
 
 ALTER TABLE EMP2
 ADD (DEPT_ID NUMBER(10) CONSTRAINT EMP2_DEPT_ID_FK REFERENCES DEPT2(ID));
 
---62. ��ѯԱ������ salary ǰ 10 ��Ա����Ϣ.
+--62. 查询员工表中 salary 前 10 的员工信息.
 SELECT * FROM (SELECT E.* FROM EMPLOYEES E ORDER by E.Salary desc) where rownum <=10;
---63. ��ѯԱ������ salary 10 - 20 ��Ա����Ϣ. 
+--63. 查询员工表中 salary 10 - 20 的员工信息. 
 
 select * from (SELECT rownum rn ,sal.* FROM (SELECT rownum ,E.* FROM EMPLOYEES E ORDER by E.Salary desc) sal) where rn between 10 and 20;
 
    
---64. �� oralce ���ݿ��м�¼���з�ҳ: ÿҳ��ʾ 10 ����¼, ��ѯ�� 5 ҳ������ 
+--64. 对 oralce 数据库中记录进行分页: 每页显示 10 条记录, 查询第 5 页的数据 
 SELECT sal.* 
 FROM (SELECT rownum rn,E.* 
      FROM EMPLOYEES E) sal 
      where sal.rn between 10*(&pageNum-1) and 10*&pageNum; 
 
---1.	ʹ�ñ�employees������ͼemployee_vu�����а���������LAST_NAME����Ա���ţ�EMPLOYEE_ID�������ź�(DEPARTMENT_ID).
+--1.	使用表employees创建视图employee_vu，其中包括姓名（LAST_NAME），员工号（EMPLOYEE_ID），部门号(DEPARTMENT_ID).
 CREATE OR REPLACE VIEW EMPLOYEE_VU 
 AS 
 SELECT LAST_NAME, EMPLOYEE_ID,DEPARTMENT_ID
@@ -418,16 +418,16 @@ FROM EMPLOYEES;
 
 
 
---3.	��ѯ��ͼ�е�ȫ������
+--3.	查询视图中的全部内容
 SELECT * FROM EMPLOYEE_VU;
 
---4.	����ͼ�е������޶��ڲ��ź���80�ķ�Χ��
+--4.	将视图中的数据限定在部门号是80的范围内
 CREATE OR REPLACE VIEW EMPLOYEE_VU 
 AS 
 SELECT LAST_NAME, EMPLOYEE_ID,DEPARTMENT_ID
 FROM EMPLOYEES WHERE DEPARTMENT_ID = 80;
 
---5.	����ͼ�ı��ֻ����ͼ
+--5.	将视图改变成只读视图
 
 CREATE OR REPLACE VIEW EMPLOYEE_VU 
 AS 
@@ -436,7 +436,7 @@ FROM EMPLOYEES WHERE DEPARTMENT_ID = 80
 WITH READ ONLY; 
 
 
---1.	��������dept_id_seq����ʼֵΪ200��ÿ������10�����ֵΪ10000
+--1.	创建序列dept_id_seq，开始值为200，每次增长10，最大值为10000
 CREATE SEQUENCE DEPT_ID_SEQ
 START WITH 200
 INCREMENT BY 10
@@ -447,7 +447,7 @@ NOCYCLE;
 
 
 
---2.	ʹ���������dept�в�������
+--2.	使用序列向表dept中插入数据
 ALTER TABLE DEPT
 DROP COLUMN TEST_COLUMN;
 
@@ -479,7 +479,7 @@ SELECT E.DEPARTMENT_ID, E.JOB_ID,3 FROM EMPLOYEES E
          WHERE E.DEPARTMENT_ID = 20 
 ORDER BY 3                  
 
---���⣺��ѯ��141�Ż�174��Ա����manager_id��department_id��ͬ������Ա����employee_id, manager_id, department_id 
+--问题：查询与141号或174号员工的manager_id和department_id相同的其他员工的employee_id, manager_id, department_id 
 
 SELECT E.EMPLOYEE_ID,E.MANAGER_ID,E.DEPARTMENT_ID 
 FROM EMPLOYEES E 
@@ -488,7 +488,7 @@ WHERE ( E.MANAGER_ID, E.DEPARTMENT_ID) IN
 WHERE EMPLOYEE_ID IN (141,174))
 AND EMPLOYEE_ID NOT IN (141,174);
 
---���رȱ�����ƽ�����ʸߵ�Ա����last_name, department_id, salary��ƽ������
+--返回比本部门平均工资高的员工的last_name, department_id, salary及平均工资
 SELECT E.LAST_NAME, E.DEPARTMENT_ID ,E.SALARY,(SELECT AVG(SALARY) FROM EMPLOYEES WHERE DEPARTMENT_ID = E.DEPARTMENT_ID) 
 FROM EMPLOYEES E
 WHERE E.SALARY > (SELECT AVG(SALARY) FROM EMPLOYEES 
@@ -504,7 +504,7 @@ FROM EMPLOYEES E, (SELECT AVG(SALARY) AVG_SAL, DEPARTMENT_ID
 WHERE E.DEPARTMENT_ID = DEPT_AVG.DEPARTMENT_ID
 AND E.SALARY > DEPT_AVG.AVG_SAL;                  
 
---��ʽԱ����employee_id,last_name��location�����У���Ա��department_id��location_idΪ1800��department_id��ͬ����locationΪ��Canada��,������Ϊ��USA����
+--显式员工的employee_id,last_name和location。其中，若员工department_id与location_id为1800的department_id相同，则location为’Canada’,其余则为’USA’。
 SELECT E.EMPLOYEE_ID,E.LAST_NAME,CASE 
                                  WHEN E.DEPARTMENT_ID = (SELECT DEPARTMENT_ID FROM DEPARTMENTS WHERE LOCATION_ID = 1800)
                                  THEN 'CANADA'
@@ -521,7 +521,7 @@ SELECT E.EMPLOYEE_ID,E.LAST_NAME,CASE E.DEPARTMENT_ID
 FROM EMPLOYEES E;
 
 
---��ѯԱ����employee_id,last_name,Ҫ����Ա����department_name����
+--查询员工的employee_id,last_name,要求按照员工的department_name排序
 SELECT E.EMPLOYEE_ID,E.LAST_NAME 
 FROM EMPLOYEES E, DEPARTMENTS D 
 WHERE E.DEPARTMENT_ID = D.DEPARTMENT_ID
@@ -533,7 +533,7 @@ ORDER BY (SELECT D.DEPARTMENT_NAME FROM DEPARTMENTS D WHERE D.DEPARTMENT_ID = E.
            
           
 
---���⣺��employees����employee_id��job_history����employee_id��ͬ����Ŀ��С��2�������Щ��ͬid��Ա����employee_id,last_name����job_id
+--问题：若employees表中employee_id与job_history表中employee_id相同的数目不小于2，输出这些相同id的员工的employee_id,last_name和其job_id
                                                                                        
  SELECT * FROM EMPLOYEES E 
  WHERE E.EMPLOYEE_ID IN (SELECT jh.employee_id from job_history jh where jh.employee_id = e.employee_id)
@@ -544,7 +544,7 @@ ORDER BY (SELECT D.DEPARTMENT_NAME FROM DEPARTMENTS D WHERE D.DEPARTMENT_ID = E.
  WHERE (SELECT COUNT(JH.EMPLOYEE_ID) FROM JOB_HISTORY JH WHERE JH.EMPLOYEE_ID = E.EMPLOYEE_ID) >=2;
  
  
---���⣺��ѯ��˾�����ߵ�employee_id,last_name,job_id,department_id��Ϣ
+--问题：查询公司管理者的employee_id,last_name,job_id,department_id信息
  
 SELECT DISTINCT E.EMPLOYEE_ID,E.LAST_NAME,E.JOB_ID,E.DEPARTMENT_ID 
 FROM EMPLOYEES E
@@ -552,12 +552,12 @@ WHERE EXISTS --(SELECT * FROM DEPARTMENTS D WHERE D.MANAGER_ID = E.EMPLOYEE_ID)
 (SELECT * FROM EMPLOYEES E2 WHERE E2.MANAGER_ID = E.EMPLOYEE_ID);
 
 
---���⣺��ѯdepartments���У���������employees���еĲ��ŵ�department_id��department_name
+--问题：查询departments表中，不存在于employees表中的部门的department_id和department_name
 SELECT D.DEPARTMENT_ID,D.DEPARTMENT_NAME FROM DEPARTMENTS D
 WHERE NOT EXISTS (SELECT * FROM EMPLOYEES E WHERE E.DEPARTMENT_ID = D.DEPARTMENT_ID);
 
 
---���⣺��ѯ��˾�и����ŵ��ܹ��ʴ��ڹ�˾�и����ŵ�ƽ���ܹ��ʵĲ�����Ϣ
+--问题：查询公司中各部门的总工资大于公司中各部门的平均总工资的部门信息
 WITH 
 DEPT_AVG_INFO AS(
 SELECT SUM(SALARY)/COUNT(DISTINCT DEPARTMENT_ID) SUM_AVG FROM EMPLOYEES 
@@ -581,18 +581,18 @@ AND DEPT_SUM_INFO.SUM_SAL >(SELECT SUM(SALARY)/COUNT(DISTINCT DEPARTMENT_ID) SUM
 
 
 
---1.	��ѯԱ����last_name, department_id, salary.����Ա����salary,department_id���н�����κ�һ��Ա����salary,department_id��ͬ����
+--1.	查询员工的last_name, department_id, salary.其中员工的salary,department_id与有奖金的任何一个员工的salary,department_id相同即可
 SELECT E.LAST_NAME,E.DEPARTMENT_ID,E.SALARY FROM EMPLOYEES E
 WHERE (E.SALARY,E.DEPARTMENT_ID) IN (SELECT E2.SALARY, E2.DEPARTMENT_ID FROM EMPLOYEES E2 WHERE E2.COMMISSION_PCT IS NOT NULL);
 
 
---2.	ѡ���ʴ�������JOB_ID = 'SA_MAN'��Ա���Ĺ��ʵ�Ա����last_name, job_id, salary
+--2.	选择工资大于所有JOB_ID = 'SA_MAN'的员工的工资的员工的last_name, job_id, salary
 SELECT E.LAST_NAME,E.JOB_ID,E.SALARY FROM EMPLOYEES E
 WHERE E.SALARY > ALL (SELECT SALARY FROM EMPLOYEES WHERE  JOB_ID = 'SA_MAN')
 --(SELECT MAX(SALARY) FROM EMPLOYEES WHERE JOB_ID = 'SA_MAN');
 
 
---3.	ѡ������û�й����ߵ�Ա����last_name
+--3.	选择所有没有管理者的员工的last_name
 SELECT * FROM EMPLOYEES E 
 WHERE NOT EXISTS (SELECT * FROM EMPLOYEES E1 WHERE E1.EMPLOYEE_ID = E.MANAGER_ID)
 
