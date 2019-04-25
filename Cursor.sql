@@ -130,7 +130,30 @@ BEGIN
       DBMS_OUTPUT.put_line('E2 '||E2.DEPARTMENT_ID ||' '||E2.LAST_NAME ||' '||E2.SALARY||' '||E2.ASAL);
   END LOOP;
 END; 
+-- FOR LOOP TO ASSIGN CURSOR, TO A COLLECTION
 
+DECLARE
+EL TEST_UTILITY.T_EMP_EMAIL := TEST_UTILITY.T_EMP_EMAIL();
+CURSOR C IS SELECT EMPLOYEE_ID, EMAIL FROM EMPLOYEES WHERE DEPARTMENT_ID = 100;
+VE TEST_UTILITY.EMP_EMAIL;
+I NUMBER(5) := 1;
+TYPE SL IS TABLE OF EMPLOYEES.SALARY%TYPE;
+S SL; 
+BEGIN
+  --OPEN C;
+  DBMS_OUTPUT.put_line(boolean_to_char(EL IS NULL)||EL.COUNT);
+--FETCH C BULK COLLECT INTO EL;
+--FETCH C BULK COLLECT INTO S; 
+
+FOR E IN C LOOP
+ -- VE := E;
+  EL.EXTEND;
+  EL(I).empid := e.employee_id;
+  I := I+1;
+END LOOP;   
+DBMS_OUTPUT.put_line(EL.COUNT||EL(5).empid);
+--CLOSE C;
+END;
 -- CUROSR VARAIBLES
 
 
@@ -148,4 +171,96 @@ begin
 dbms_output.put_line(boolean_to_char(vc%isopen));
 end;
 
+
+-- CURSOR EXPRESSION
+
+DECLARE
+TYPE C IS REF CURSOR;
+--TYPE CC IS RECORD (VC C, DNAME DEPARTMENTS.DEPARTMENT_NAME%TYPE );
+-- WRONG: the cursor type cannot be in a collection
+VC C;
+EVC C;
+MVC C;
+MEVC C;
+TYPE DEPTL IS TABLE OF DEPARTMENTS.DEPARTMENT_NAME%TYPE;
+DL DEPTL; 
+
+V_DP DEPARTMENTS.DEPARTMENT_NAME%TYPE;
+TYPE EINFO IS RECORD ( V_EID EMPLOYEES.EMPLOYEE_ID%TYPE,
+                       V_LN EMPLOYEES.LAST_NAME%TYPE,
+                       V_SAL EMPLOYEES.SALARY%TYPE                   
+                      );
+TYPE ELIST IS TABLE OF EINFO;
+EL ELIST;
+ML ELIST;  
+MEL ELIST;
+
+V_M EINFO; 
+STR VARCHAR2(100);
+MSTR VARCHAR2(100);                     
+BEGIN
+
+  OPEN VC FOR SELECT D.DEPARTMENT_NAME,
+                     CURSOR(SELECT E.EMPLOYEE_ID, E.LAST_NAME,E.SALARY FROM EMPLOYEES E WHERE E.DEPARTMENT_ID = D.DEPARTMENT_ID) EMPLOYEES,
+                     CURSOR(SELECT M.EMPLOYEE_ID , M.LAST_NAME ,M.SALARY,
+                                   CURSOR(SELECT ME.EMPLOYEE_ID,ME.LAST_NAME,ME.SALARY 
+                                   FROM EMPLOYEES ME 
+                                   WHERE ME.MANAGER_ID = M.EMPLOYEE_ID) MANAGED_EMPLOYEE
+                            FROM EMPLOYEES M 
+                            WHERE M.DEPARTMENT_ID = D.DEPARTMENT_ID
+                            AND M.EMPLOYEE_ID IN 
+                            (SELECT DISTINCT MANAGER_ID FROM EMPLOYEES E1 
+                             WHERE E1.DEPARTMENT_ID = D.DEPARTMENT_ID)) MANAGER
+              FROM DEPARTMENTS D;
+  
+  FETCH VC INTO V_DP,EVC,MVC;
+  
+  FETCH EVC BULK COLLECT INTO EL;
+  
+  LOOP
+   FETCH MVC INTO V_M.V_EID,V_M.V_LN,V_M.V_SAL,MEVC;
+   EXIT WHEN MVC%NOTFOUND;
+   MSTR := 'MANAGER: '||V_M.V_EID||' '||V_M.V_LN;
+   FETCH MEVC BULK COLLECT INTO MEL;
+   FOR I IN MEL.FIRST .. MEL.LAST LOOP
+     STR := MSTR||' EMPLOYEE: '||MEL(I).V_EID||' '||MEL(I).V_LN;
+     DBMS_OUTPUT.put_line(STR);
+     STR := NULL; 
+   END LOOP;   
+  END LOOP;
+  
+  
+  
+/*  FOR I IN EL.FIRST .. EL.LAST LOOP
+    DBMS_OUTPUT.put_line('EMPLOYEE: '||EL(I).V_EID||' '||EL(I).V_LN||' '||EL(I).V_SAL);
+  END LOOP; 
+*/
+
+  /*CLOSE VC;
+  CLOSE EVC;
+  CLOSE MVC; */
+                
+
+END; 
+/
+
+-- PIPELINED RETURN TYPE WITH CURSOR
+
+SELECT * FROM TABLE(TEST_UTILITY.GET_MANAGER_INFO(CURSOR(SELECT M.EMPLOYEE_ID , M.LAST_NAME ,M.SALARY,
+                                   CURSOR(SELECT ME.EMPLOYEE_ID,ME.LAST_NAME,ME.SALARY 
+                                   FROM EMPLOYEES ME 
+                                   WHERE ME.MANAGER_ID = M.EMPLOYEE_ID) MANAGED_EMPLOYEE
+                            FROM EMPLOYEES M 
+                            WHERE M.DEPARTMENT_ID = 80
+                            AND M.EMPLOYEE_ID IN 
+                            (SELECT DISTINCT MANAGER_ID FROM EMPLOYEES E1 
+                             WHERE E1.DEPARTMENT_ID = 80)) ));
+
+
+SELECT DEPARTMENT_NAME, CURSOR(SELECT E.EMPLOYEE_ID, E.LAST_NAME 
+                                               FROM EMPLOYEES E
+                                               WHERE E.EMPLOYEE_ID IN (SELECT DISTINCT MANAGER_ID 
+                                                                       FROM EMPLOYEES 
+                                                                       WHERE DEPARTMENT_ID = D.DEPARTMENT_ID ) ) MANAGER
+                FROM DEPARTMENTS D WHERE D.DEPARTMENT_ID = 80; 
 
