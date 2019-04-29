@@ -262,5 +262,5 @@ SELECT DEPARTMENT_NAME, CURSOR(SELECT E.EMPLOYEE_ID, E.LAST_NAME
                                                WHERE E.EMPLOYEE_ID IN (SELECT DISTINCT MANAGER_ID 
                                                                        FROM EMPLOYEES 
                                                                        WHERE DEPARTMENT_ID = D.DEPARTMENT_ID ) ) MANAGER
-                FROM DEPARTMENTS D WHERE D.DEPARTMENT_ID = 80; 
+                FROM DEPARTMENTS D ;
 

@@ -32,7 +32,6 @@ TYPE ECV IS REF CURSOR;
 
 
 
-
  
 
   -- Public constant declarations
@@ -96,6 +95,11 @@ column of the departments table
   FUNCTION GET_MANAGER_INFO2(P_DEPTID IN NUMBER)
   RETURN ECV;
   
+  FUNCTION GET_MANAGER_INFO3
+  RETURN ECV;
+  
+  PROCEDURE INSERT_JOB_TABLE( P_ID IN VARCHAR2,P_TITLE VARCHAR2,P_MIN IN NUMBER, P_MAX IN NUMBER, TABLE_NAME IN VARCHAR2);
+   
 
 end TEST_UTILITY;
 /
@@ -242,7 +246,30 @@ create or replace package body TEST_UTILITY is
     RETURN EC;                                                                  
   
   END;
-   
+  
+  
+  FUNCTION GET_MANAGER_INFO3
+  RETURN ECV
+  IS
+   EC ECV;
+  BEGIN
+    OPEN EC FOR SELECT DEPARTMENT_NAME, CURSOR(SELECT E.EMPLOYEE_ID, E.LAST_NAME 
+                                               FROM EMPLOYEES E
+                                               WHERE E.EMPLOYEE_ID IN (SELECT DISTINCT MANAGER_ID 
+                                                                       FROM EMPLOYEES 
+                                                                       WHERE DEPARTMENT_ID = D.DEPARTMENT_ID ) ) MANAGER
+                FROM DEPARTMENTS D;  
+                
+    RETURN EC;                                                                  
+  
+  END;
+  
+   PROCEDURE INSERT_JOB_TABLE( P_ID IN VARCHAR2,P_TITLE VARCHAR2,P_MIN IN NUMBER, P_MAX IN NUMBER, TABLE_NAME IN VARCHAR2)
+   IS
+   BEGIN
+     EXECUTE IMMEDIATE 'INSERT INTO '||TABLE_NAME||' VALUES( :1,:2, :3, :4)'
+     USING P_ID, P_TITLE,P_MIN,P_MAX;   
+   END;  
 begin
 NULL;
 end TEST_UTILITY;
