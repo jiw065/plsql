@@ -233,3 +233,5 @@ BEGIN
 END;
 /
 
+select * from employees 
+select * from employee_salaries; 
