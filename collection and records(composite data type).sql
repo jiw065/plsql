@@ -65,15 +65,16 @@ begin
      dbms_output.put_line(elist(e).email);
      null;
     end loop;
-    
-    nll.extend(2,2);
+    NLL.EXTEND;
+    NLL(4) := 999; 
+   -- nll.extend(2,1);
     --nll.trim(2);
-    nll.DELETE(2); -- cannot use delete for varray
+   -- nll.DELETE(2); -- cannot use delete for varray
     for i in nll.first .. nll.last loop
-      dbms_output.put_line(nll(i));
+      dbms_output.put_line(nll(i) ||' '||nll.limit);
     end loop;
     
-    dbms_output.put_line(boolean_to_char(nll.exists(2))||' '||' '||nll(2)||' '||nll.limit||' '||nll.last||' '||nll.prior(nll.last-1));
+    --dbms_output.put_line(boolean_to_char(nll.exists(2))||' '||' '||nll(2)||' '||nll.limit||' '||nll.last||' '||nll.prior(nll.last-1));
 end; 
 /
 
