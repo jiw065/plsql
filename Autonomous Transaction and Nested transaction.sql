@@ -71,5 +71,4 @@ END TEST_PL_SQL_ENTRY;
 
 begin
   TEST_PL_SQL_ENTRY;
-
 end; 
