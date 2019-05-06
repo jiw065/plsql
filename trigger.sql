@@ -320,3 +320,66 @@ SELECT * FROM OTT_HIS;
 SELECT Trigger_type, Triggering_event, Table_name
 FROM USER_TRIGGERS
 WHERE Trigger_name = 'INSERT_EMP_AUDIT';
+
+
+-- trigger calling subprogram and autonomous transaction
+
+create table emp_log_sal (
+employee_id number(6),
+salary number(8,2),
+time_stmp date,
+constraint els_pk primary key (time_stmp)
+);
+alter table emp_log_sal add  (time_stmp date not null);
+alter table emp_log_sal drop constraint ELS_PK; 
+alter table emp_log_sal add constraint els_pk primary key (time_stmp,empid);
+alter table emp_log_sal rename COLUMN employee_id to empid; 
+alter table emp_log_sal modify empid number(6) not null; 
+
+create or replace trigger test_tri after 
+update on employees
+for each row
+declare
+  procedure insert_log (empid in number, salary number)
+  is
+  pragma autonomous_transaction;
+  begin
+    insert into emp_log_sal(empid,
+                            salary,
+                            time_stmp)
+    values (empid,salary,sysdate);                        
+    commit; 
+  end; 
+    
+begin
+  insert_log(:new.employee_id, :new.salary);
+end; 
+/
+select * from employees e 
+update employees e set e.salary = e.salary +100 where e.employee_id in (259);
+
+select * from emp_log_sal; 
+
+
+create or replace procedure insert_log (empid in number, salary number)
+  is
+  pragma autonomous_transaction;
+  begin
+    insert into emp_log_sal(empid,
+                            salary,
+                            time_stmp)
+    values (empid,salary,sysdate);                        
+    commit; 
+  end; 
+
+
+
+create or replace trigger test_tri2 after 
+update on employees
+for each row
+    
+begin
+  insert_log(:new.employee_id, :new.salary);
+  test_utility.test_hello(:old.salary);
+end; 
+/
