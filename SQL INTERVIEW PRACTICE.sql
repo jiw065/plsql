@@ -367,7 +367,7 @@ GROUP BY S.SNO,S.SNAME
 ORDER BY AVG_SC DESC;
 
 
-select * from table(hr.score_utility.create_score_table(top => 1,bottom => 7));
+select * from table(hr.score_utility.create_score_table(top => 2,bottom => 5));
 
 --23、统计打印各科成绩,各分数段人数:课程ID,课程名称,[100-85],[85-70],[70-60],[ <60]
 
@@ -504,15 +504,59 @@ and sc.cno = c.cno
 and c.tno = (select tno from teacher where tname = 'Ye Ping')
 and sc.score = (select max(score) from sc where cno = c.cno);
 
+--41、查询各个课程及相应的选修人数：
+select c.cname, count(sc.sno) from sc sc, course c
+where c.cno = sc.cno
+group by c.cname;
 
+--查询不同课程成绩相同的学生和学号、课程号、学生成绩：
 
+select sc.* from sc sc
+where exists (select 1 from sc sc2 where sc2.score = sc.score and sc2.cno != sc.cno);
 
+--查询每门课程成绩最好学生信息：
 
-
-
+select s.sname, a.cno,a.score from sc a,student s,
+(select sc.cno, max(sc.score) ms from sc sc
+group by sc.cno) b
+where a.score = b.ms
+and a.cno = b.cno
+and s.sno = a.sno; 
  
+
+--44、统计每门课程的学生选修人数(超过10人的课程才统计)。要求输出课程号和选修人数，查询结果按人数降序排序，若人数相同，按课程号升序排序：
+select sc.cno, count(sno) ct from sc sc
+group by sc.cno
+having count(sno) > 3
+order by count(sno) desc, sc.cno;
+
+
+--45、检索至少选修两门课程的学生学号：
+select sc.sno, count(cno) ct from sc sc
+group by sc.sno
+having count(cno) > 2
+order by count(cno) desc, sc.sno;
+
+
+--46、查询全部学生选修的课程和课程号和课程名：
+select c.* from course c 
+where c.cno in (select distinct cno from sc);
+
+
+--47、查询没学过”叶平”老师讲授的任一门课程的学生姓名：
+select distinct s.* from student s, sc sc 
+where s.sno = sc.sno
+and sc.cno not in (select distinct c.cno from course c, teacher t where c.tno = t.tno and t.tname = 'Ye Ping') ;
  
- 
+--48、查询两门以上不及格课程的同学的学号以及其平均成绩：
+
+select sc.sno, avg(sc.score) from sc sc where sc.score < 60 group by sc.sno having count(sc.cno) >= 2; 
+
+--49、检索“004”课程分数小于60，按分数降序排列的同学学号： 
+
+select sc.sno,sc.score from sc sc where sc.score < 60 and sc.cno = 4 order by sc.score desc; 
+--50、删除“002”同学的“001”课程的成绩：
+ delete from sc sc  where sc.sno = 2 and sc.cno = 1; 
  
  
  

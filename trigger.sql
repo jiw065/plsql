@@ -356,7 +356,7 @@ begin
 end; 
 /
 select * from employees e 
-update employees e set e.salary = e.salary +100 where e.employee_id in (259);
+update employees e set e.salary = e.salary+10  where e.employee_id in (259);
 
 select * from emp_log_sal; 
 
@@ -379,7 +379,8 @@ update on employees
 for each row
     
 begin
-  insert_log(:new.employee_id, :new.salary);
-  test_utility.test_hello(:old.salary);
+  if :new.salary = :old.salary then
+     insert_log(:new.employee_id, :new.salary);
+  end if;    
 end; 
 /
