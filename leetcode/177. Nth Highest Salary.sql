@@ -1,0 +1,48 @@
+CREATE OR REPLACE FUNCTION GET_HIGHEST_SAL(P_NTH NUMBER)
+RETURN EMPLOYEES.SALARY%TYPE
+IS
+CURSOR C(C_NTH NUMBER) IS SELECT MIN(S.SALARY ) FROM (SELECT DISTINCT E.SALARY FROM EMPLOYEES E ORDER BY E.SALARY DESC) S
+                                             WHERE ROWNUM <= C_NTH
+                                             HAVING COUNT(S.SALARY) = 888; 
+V_SAL EMPLOYEES.SALARY%TYPE;                                                         
+BEGIN
+  OPEN C(P_NTH);
+  FETCH C INTO V_SAL;  
+  CLOSE C;
+  
+  RETURN V_SAL; 
+END;
+/
+
+CREATE OR REPLACE FUNCTION GET_HIGHEST_SAL2(P_NTH NUMBER)
+RETURN EMPLOYEES.SALARY%TYPE
+IS
+V_SAL EMPLOYEES.SALARY%TYPE;                                                         
+BEGIN
+  SELECT MIN(S.SALARY )INTO v_sal FROM (SELECT DISTINCT E.SALARY FROM EMPLOYEES E ORDER BY E.SALARY DESC) S
+                                             WHERE ROWNUM <= p_NTH
+                                             HAVING COUNT(S.SALARY) = p_NTH; 
+  
+  RETURN V_SAL; 
+END;
+/
+
+
+
+SELECT DISTINCT SALARY FROM EMPLOYEES E ORDER BY E.SALARY DESC;  
+
+SELECT GET_HIGHEST_SAL2(P_NTH =>35) FROM DUAL;  
+
+
+-- MYSQL STORED FUNCTION 
+CREATE FUNCTION getNthHighestSalary(N INT) RETURNS INT
+BEGIN
+  DECLARE NUM INT;
+  SET NUM = N-1;
+  RETURN (
+      # Write your MySQL query statement below.
+      
+      SELECT DISTINCT E.SALARY FROM EMPLOYEE E ORDER BY E.SALARY DESC LIMIT 1 OFFSET NUM
+                                             
+  );
+END
